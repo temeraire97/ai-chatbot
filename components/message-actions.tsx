@@ -17,7 +17,7 @@ export function PureMessageActions({
 }: {
   chatId: string;
   message: ChatMessage;
-  vote: Vote | undefined;
+  vote?: Vote | undefined;
   isLoading: boolean;
   setMode?: (mode: "view" | "edit") => void;
 }) {
