@@ -50,8 +50,8 @@ const PurePreviewMessage = ({
         })}
       >
         {message.role === "assistant" && (
-          <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
-            <SparklesIcon size={14} />
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
+            <SparklesIcon className="text-primary" size={16} />
           </div>
         )}
 
@@ -112,17 +112,12 @@ const PurePreviewMessage = ({
                   <div key={key}>
                     <MessageContent
                       className={cn({
-                        "wrap-break-word w-fit rounded-2xl px-3 py-2 text-right text-white":
+                        "wrap-break-word w-fit rounded-[18px] px-4 py-2.5 text-right text-white bg-primary":
                           message.role === "user",
-                        "bg-transparent px-0 py-0 text-left":
+                        "bg-secondary rounded-[18px] px-4 py-2.5 text-left":
                           message.role === "assistant",
                       })}
                       data-testid="message-content"
-                      style={
-                        message.role === "user"
-                          ? { backgroundColor: "#006cff" }
-                          : undefined
-                      }
                     >
                       <Response>{sanitizeText(part.text)}</Response>
                     </MessageContent>
@@ -179,9 +174,9 @@ export const ThinkingMessage = () => {
       data-testid="message-assistant-loading"
     >
       <div className="flex items-start justify-start gap-3">
-        <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
           <div className="animate-pulse">
-            <SparklesIcon size={14} />
+            <SparklesIcon className="text-primary" size={16} />
           </div>
         </div>
 
