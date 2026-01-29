@@ -4,7 +4,6 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import {
   type Dispatch,
   type SetStateAction,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -35,18 +34,18 @@ export function MessageEditor({
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const adjustHeight = useCallback(() => {
+  const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 2}px`;
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (textareaRef.current) {
       adjustHeight();
     }
-  }, [adjustHeight]);
+  }, []);
 
   const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDraftContent(event.target.value);

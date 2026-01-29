@@ -5,8 +5,6 @@ import {
   type CSSProperties,
   type ElementType,
   type JSX,
-  memo,
-  useMemo,
 } from "react";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +27,7 @@ const ShimmerComponent = ({
     Component as keyof JSX.IntrinsicElements
   );
 
-  const dynamicSpread = useMemo(
-    () => (children?.length ?? 0) * spread,
-    [children, spread]
-  );
+  const dynamicSpread = (children?.length ?? 0) * spread;
 
   return (
     <MotionComponent
@@ -61,4 +56,4 @@ const ShimmerComponent = ({
   );
 };
 
-export const Shimmer = memo(ShimmerComponent);
+export const Shimmer = ShimmerComponent;
