@@ -26,21 +26,37 @@ export const resumeChunks: ResumeChunk[] = [
       "프론트엔드",
       "자기소개",
       "소개",
+      "GitHub",
+      "AI",
+      "LLM",
+      "Claude Code",
+      "Copilot",
+      "테스트",
+      "Vitest",
+      "Playwright",
     ],
     relatedChunks: ["skills-frontend", "core-websocket"],
     content: `# 기본 정보
 - 이름: 윤현수
 - 이메일: hyensooyoon@gmail.com
 - 연락처: +82 10-2427-2688
+- GitHub: github.com/temeraire97
 - 경력: 5년 (프론트엔드 4년 10개월, 프론트엔드 리드 3년 6개월)
 
 # 자기소개
-실시간 통신 시스템과 재사용 가능한 프론트엔드 자산을 설계/구현한 프론트엔드 개발자입니다.
+2,000만 사용자가 매일 거래를 완결하는 채팅 경험을 더 빠르고 안정적으로 만들고 싶습니다.
+
 오픈메타(3년 6개월)에서 프론트엔드 리드로 WebSocket 양방향 실시간 통신을 직접 구현했습니다.
 heartbeat/재연결 관리, 에러 핸들링, TanStack Query 연동으로 응답 지연을 93% 개선했습니다 (3초 → 200ms).
+
 EditUp에서는 CMS Adapter 아키텍처(Template Method + Registry Pattern)를 설계하여 5개 CMS를 단일 인터페이스로 지원하는 재사용 가능한 자산을 구축했습니다.
 웹/확장/애드인 3개 플랫폼에서 코드 재사용률 70%+를 달성했습니다.
-LG ES Chatbot에서 RAG 파이프라인용 Milvus 벡터 검색 서비스(58 commits)와 관리자 프론트엔드(39 commits)를 전체 개발했습니다.`,
+
+마을이야기페이에서는 Flutter 웹뷰 환경에서 카카오톡 인앱 브라우저의 구글 OAuth 403 에러를 외부 브라우저 리다이렉트로 해결하고, iOS/Android 플랫폼별 웹뷰 최적화를 경험했습니다.
+
+AI/LLM 시대에 발빠르게 대응하고 있습니다. GitHub Copilot 초기 도입부터 GPT-3.5/4, Claude, Cursor를 거쳐 현재는 Claude Code(oh-my-claudecode)에 정착했습니다. AI에 자아를 의탁하지 않고, 내가 PM이 되어 AI를 지휘하는 방식으로 개발합니다.
+
+테스트 코드의 중요성을 실감하고 있습니다. EditUp 프로젝트에서 Jest에서 Vitest 4.0으로 마이그레이션을 완료하고, SWC 기반 빠른 트랜스파일링과 V8 커버리지를 도입했습니다. 테스트 피라미드 전략(Unit 70%, Integration 20%, E2E 10%)을 적용하여 안정성과 효율성의 균형을 추구합니다. E2E 테스트는 실제 사용자 여정을 검증하여 프론트엔드-백엔드 통합 이슈를 조기에 발견할 수 있어, Playwright 도입을 검토 중입니다.`,
   },
   {
     id: "project-openmeta",
@@ -476,24 +492,33 @@ LG전자 고객 상담용 AI 플랫폼
       "기여",
       "2000만",
       "사용자",
+      "테스트",
+      "Vitest",
+      "Playwright",
+      "E2E",
     ],
     relatedChunks: ["core-websocket", "core-sdk"],
     content: `# 왜 당근 채팅팀인가?
 
-당근의 채팅이 "모든 서비스가 만나는 교차로"라는 점에 공감합니다.
+당근의 채팅은 "모든 서비스가 만나는 교차로"입니다. 저는 이 교차로에서 필요한 경험을 이미 갖추고 있습니다.
 
-## 당근 기술 스택과의 적합성
-| 당근 채팅팀 스택 | 내 경험 |
-|-----------------|---------|
-| WebSocket 실시간 통신 | 오픈메타에서 WebSocket 양방향 통신 직접 구현 (15초 heartbeat, 자동 재연결) |
-| 모바일 웹뷰 채팅 | Flutter 웹뷰 (iOS WKWebView / Android WebView), 카카오톡 인앱 OAuth 우회 |
-| Redis 세션 관리 | EditUp에서 Redis 원자성 (MULTI/EXEC, Lua Script, 분산 락) 구현 |
-| React + Next.js + TypeScript | Next.js 16 + React 19 + React Compiler, TypeScript strict mode |
-| MSA 아키텍처 | NestJS + FastAPI 마이크로서비스, Terraform IaC |
-| 2,200만 사용자 규모 | 확장성 고려한 설계 경험 (커넥션 풀링, 캐싱, 비동기 처리) |
+## 1. WebSocket 실시간 통신 — 채팅의 핵심
+오픈메타에서 WebSocket 양방향 통신을 직접 구현했습니다. polling의 한계를 경험하고, heartbeat/재연결/메시지 프로토콜을 설계하여 응답 지연을 93% 개선했습니다.
 
-## 기대하는 기여
-이 경험을 당근 채팅팀에서 2,000만 사용자가 매일 거래를 완결하는 채팅 경험을 더 빠르고 안정적으로 만드는 데 활용하고 싶습니다.`,
+## 2. SDK 설계 경험 — 채팅 SDK 개발
+EditUp에서 CMS Adapter 아키텍처를 설계하며 "여러 환경에서 동작하는 재사용 가능한 자산"을 만드는 방법을 배웠습니다. 5개 CMS를 단일 인터페이스로 통합하고, 3개 플랫폼에서 70%+ 코드를 재사용했습니다.
+
+## 3. 웹뷰/인앱 환경 — 당근 앱 내 채팅
+마을이야기페이에서 Flutter 웹뷰 최적화와 카카오톡 인앱 브라우저 OAuth 우회를 경험했습니다. iOS WKWebView와 Android WebView의 차이, 인앱 브라우저의 제약을 이해하고 있습니다.
+
+## 4. AI 시대의 개발자 — 빠른 적응력
+GitHub Copilot 초기부터 Claude Code까지, AI 도구의 변화에 발빠르게 대응해왔습니다. LG ES Chatbot에서 RAG 파이프라인을 구축하고, 포트폴리오 AI 챗봇을 직접 설계했습니다.
+
+## 5. 2,000만 사용자 규모의 책임감
+3년 6개월간 프론트엔드 리드로서 아키텍처 결정, 코드 리뷰, 기술 스택 선정을 주도했습니다. 당근의 2,000만 사용자가 매일 거래를 완결하는 채팅 경험을 더 빠르고 안정적으로 만들고 싶습니다.
+
+## 6. 테스트 전략 — 안정적인 채팅 서비스의 기반
+Jest에서 Vitest로 마이그레이션하며 테스트 인프라를 현대화했습니다. 테스트 피라미드 전략(Unit 70%, Integration 20%, E2E 10%)을 적용하고, Playwright 도입을 검토 중입니다. E2E 테스트는 채팅의 핵심 플로우(메시지 전송, 읽음 확인, 알림)가 항상 동작함을 보장할 수 있습니다.`,
   },
 ];
 
