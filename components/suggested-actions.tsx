@@ -26,9 +26,9 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const defaultSuggestions = [
     "윤현수의 기술 스택이 뭐야?",
-    "실시간 처리 경험이 있어?",
-    "WebSocket 경험이 있어?",
-    "프로젝트 경험을 알려줘",
+    "WebSocket 실시간 통신 경험이 있어?",
+    "테스트 전략은 어떻게 세워?",
+    "AI 도구는 어떻게 활용해?",
   ];
 
   // Use provided suggestions or fallback to defaults
