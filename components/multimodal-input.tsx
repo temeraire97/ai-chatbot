@@ -57,11 +57,11 @@ function PureMultimodalInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
 
-  const adjustHeight = useCallback(() => {
+  const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "44px";
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -80,11 +80,11 @@ function PureMultimodalInput({
     }
   }, [width]);
 
-  const resetHeight = useCallback(() => {
+  const resetHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "44px";
     }
-  }, []);
+  };
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
@@ -111,7 +111,7 @@ function PureMultimodalInput({
     setInput(event.target.value);
   };
 
-  const submitForm = useCallback(() => {
+  const submitForm = () => {
     window.history.pushState({}, "", `/chat/${chatId}`);
 
     sendMessage({
@@ -138,17 +138,7 @@ function PureMultimodalInput({
     if (width && width > 768) {
       textareaRef.current?.focus();
     }
-  }, [
-    input,
-    setInput,
-    attachments,
-    sendMessage,
-    setAttachments,
-    setLocalStorageInput,
-    width,
-    chatId,
-    resetHeight,
-  ]);
+  };
 
   return (
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
@@ -251,4 +241,4 @@ function PureStopButton({
   );
 }
 
-const StopButton = memo(PureStopButton);
+const StopButton = PureStopButton;
