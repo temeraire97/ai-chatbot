@@ -14,7 +14,7 @@ type SuggestedActionsProps = {
   selectedVisibilityType: VisibilityType;
   suggestions?: string[];
   isLoading?: boolean;
-  onActionClick?: () => void;
+  onAfterSend?: () => void;
 };
 
 function PureSuggestedActions({
@@ -22,7 +22,7 @@ function PureSuggestedActions({
   sendMessage,
   suggestions,
   isLoading,
-  onActionClick,
+  onAfterSend,
 }: SuggestedActionsProps) {
   const defaultSuggestions = [
     "윤현수의 기술 스택이 뭐야?",
@@ -65,10 +65,15 @@ function PureSuggestedActions({
             className="h-auto w-full whitespace-normal p-3 text-left"
             onClick={(suggestion) => {
               window.history.pushState({}, "", `/chat/${chatId}`);
-              onActionClick?.();
               sendMessage({
                 role: "user",
                 parts: [{ type: "text", text: suggestion }],
+              });
+              // DOM 업데이트 후 스크롤
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  onAfterSend?.();
+                });
               });
             }}
             suggestion={suggestedAction}
