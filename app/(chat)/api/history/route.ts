@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
-import { auth } from "@/app/(auth)/auth";
-import { deleteAllChatsByUserId, getChatsByUserId } from "@/lib/db/queries";
+import {
+  deleteAllChatsByVisitorId,
+  getChatsByVisitorId,
+} from "@/lib/db/queries";
 import { ChatSDKError } from "@/lib/errors";
 
 export async function GET(request: NextRequest) {
@@ -9,6 +11,7 @@ export async function GET(request: NextRequest) {
   const limit = Number.parseInt(searchParams.get("limit") || "10", 10);
   const startingAfter = searchParams.get("starting_after");
   const endingBefore = searchParams.get("ending_before");
+  const visitorId = searchParams.get("visitorId");
 
   if (startingAfter && endingBefore) {
     return new ChatSDKError(
@@ -17,14 +20,13 @@ export async function GET(request: NextRequest) {
     ).toResponse();
   }
 
-  const session = await auth();
-
-  if (!session?.user) {
-    return new ChatSDKError("unauthorized:chat").toResponse();
+  // visitorId 없으면 빈 결과 반환
+  if (!visitorId) {
+    return Response.json({ chats: [], hasMore: false });
   }
 
-  const chats = await getChatsByUserId({
-    id: session.user.id,
+  const chats = await getChatsByVisitorId({
+    visitorId,
     limit,
     startingAfter,
     endingBefore,
@@ -33,14 +35,18 @@ export async function GET(request: NextRequest) {
   return Response.json(chats);
 }
 
-export async function DELETE() {
-  const session = await auth();
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const visitorId = searchParams.get("visitorId");
 
-  if (!session?.user) {
-    return new ChatSDKError("unauthorized:chat").toResponse();
+  if (!visitorId) {
+    return new ChatSDKError(
+      "bad_request:api",
+      "visitorId is required"
+    ).toResponse();
   }
 
-  const result = await deleteAllChatsByUserId({ userId: session.user.id });
+  const result = await deleteAllChatsByVisitorId({ visitorId });
 
   return Response.json(result, { status: 200 });
 }

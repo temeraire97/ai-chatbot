@@ -1,62 +1,44 @@
-import { gateway } from "@ai-sdk/gateway";
-import {
-  customProvider,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
-} from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { customProvider } from "ai";
 import { isTestEnvironment } from "../constants";
 
-const THINKING_SUFFIX_REGEX = /-thinking$/;
+/**
+ * Anthropic 직접 사용 (Claude Haiku 고정)
+ * Vercel AI Gateway 대신 직접 연결
+ */
+
+const HAIKU_MODEL = "claude-3-5-haiku-20241022";
 
 export const myProvider = isTestEnvironment
   ? (() => {
-      const {
-        artifactModel,
-        chatModel,
-        reasoningModel,
-        titleModel,
-      } = require("./models.mock");
+      const { chatModel, titleModel } = require("./models.mock");
       return customProvider({
         languageModels: {
           "chat-model": chatModel,
-          "chat-model-reasoning": reasoningModel,
           "title-model": titleModel,
-          "artifact-model": artifactModel,
         },
       });
     })()
   : null;
 
-export function getLanguageModel(modelId: string) {
+/**
+ * 채팅용 LLM (Claude Haiku 고정)
+ */
+export function getLanguageModel(_modelId?: string) {
   if (isTestEnvironment && myProvider) {
-    return myProvider.languageModel(modelId);
+    return myProvider.languageModel("chat-model");
   }
 
-  const isReasoningModel =
-    modelId.includes("reasoning") || modelId.endsWith("-thinking");
-
-  if (isReasoningModel) {
-    const gatewayModelId = modelId.replace(THINKING_SUFFIX_REGEX, "");
-
-    return wrapLanguageModel({
-      model: gateway.languageModel(gatewayModelId),
-      middleware: extractReasoningMiddleware({ tagName: "thinking" }),
-    });
-  }
-
-  return gateway.languageModel(modelId);
+  return anthropic(HAIKU_MODEL);
 }
 
+/**
+ * 제목 생성용 LLM (Claude Haiku)
+ */
 export function getTitleModel() {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel("title-model");
   }
-  return gateway.languageModel("google/gemini-2.5-flash-lite");
-}
 
-export function getArtifactModel() {
-  if (isTestEnvironment && myProvider) {
-    return myProvider.languageModel("artifact-model");
-  }
-  return gateway.languageModel("anthropic/claude-haiku-4.5");
+  return anthropic(HAIKU_MODEL);
 }

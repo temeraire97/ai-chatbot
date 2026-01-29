@@ -3,7 +3,6 @@
 import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import type { User } from "next-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
@@ -25,6 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { Chat } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
+import { getVisitorId } from "@/lib/visitor";
 import { LoaderIcon } from "./icons";
 import { ChatItem } from "./sidebar-history-item";
 
@@ -84,8 +84,11 @@ export function getChatHistoryPaginationKey(
     return null;
   }
 
+  // Get visitorId on client-side only (returns empty string during SSR)
+  const visitorId = typeof window !== "undefined" ? getVisitorId() : "";
+
   if (pageIndex === 0) {
-    return `/api/history?limit=${PAGE_SIZE}`;
+    return `/api/history?limit=${PAGE_SIZE}&visitorId=${visitorId}`;
   }
 
   const firstChatFromPage = previousPageData.chats.at(-1);
@@ -94,10 +97,10 @@ export function getChatHistoryPaginationKey(
     return null;
   }
 
-  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
+  return `/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}&visitorId=${visitorId}`;
 }
 
-export function SidebarHistory({ user }: { user: User | undefined }) {
+export function SidebarHistory() {
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const id = pathname?.startsWith("/chat/") ? pathname.split("/")[2] : null;
@@ -130,9 +133,12 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
     setShowDeleteDialog(false);
 
-    const deletePromise = fetch(`/api/chat?id=${chatToDelete}`, {
-      method: "DELETE",
-    });
+    const deletePromise = fetch(
+      `/api/chat?id=${chatToDelete}&visitorId=${getVisitorId()}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     toast.promise(deletePromise, {
       loading: "Deleting chat...",
@@ -158,18 +164,6 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       error: "Failed to delete chat",
     });
   };
-
-  if (!user) {
-    return (
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <div className="flex w-full flex-row items-center justify-center gap-2 px-2 text-sm text-zinc-500">
-            Login to save and revisit previous chats!
-          </div>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    );
-  }
 
   if (isLoading) {
     return (
