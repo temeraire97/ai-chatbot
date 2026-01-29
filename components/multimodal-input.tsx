@@ -145,16 +145,15 @@ function PureMultimodalInput({
 
   return (
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
-      {attachments.length === 0 &&
-        (messages.length === 0 || status === "ready") && (
-          <SuggestedActions
-            chatId={chatId}
-            isLoading={isLoadingSuggestions}
-            selectedVisibilityType={selectedVisibilityType}
-            sendMessage={sendMessage}
-            suggestions={suggestions}
-          />
-        )}
+      {attachments.length === 0 && messages.length === 0 && (
+        <SuggestedActions
+          chatId={chatId}
+          isLoading={isLoadingSuggestions}
+          selectedVisibilityType={selectedVisibilityType}
+          sendMessage={sendMessage}
+          suggestions={suggestions}
+        />
+      )}
 
       <PromptInput
         className="rounded-xl border border-border bg-background p-3 shadow-xs transition-all duration-200 focus-within:border-primary/50 hover:border-muted-foreground/50"
