@@ -48,6 +48,7 @@
         "noSvgWithoutTitle": "off"
       },
       "correctness": {
+        "useExhaustiveDependencies": "off",
         "useUniqueElementIds": "off",
         "useImageSize": "off"
       },
