@@ -3,7 +3,7 @@
 import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useOptimistic, useState } from "react";
 import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
 import {
@@ -119,50 +119,65 @@ export function SidebarHistory() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const hasReachedEnd = paginatedChatHistories
-    ? paginatedChatHistories.some((page) => page.hasMore === false)
+  const [optimisticHistories, setOptimisticHistories] = useOptimistic(
+    paginatedChatHistories,
+    (currentHistories, deletedChatId: string) => {
+      if (!currentHistories) {
+        return currentHistories;
+      }
+      return currentHistories.map((page) => ({
+        ...page,
+        chats: page.chats.filter((chat) => chat.id !== deletedChatId),
+      }));
+    }
+  );
+
+  const hasReachedEnd = optimisticHistories
+    ? optimisticHistories.some((page) => page.hasMore === false)
     : false;
 
-  const hasEmptyChatHistory = paginatedChatHistories
-    ? paginatedChatHistories.every((page) => page.chats.length === 0)
+  const hasEmptyChatHistory = optimisticHistories
+    ? optimisticHistories.every((page) => page.chats.length === 0)
     : false;
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const chatToDelete = deleteId;
+    if (!chatToDelete) {
+      return;
+    }
+
     const isCurrentChat = pathname === `/chat/${chatToDelete}`;
 
     setShowDeleteDialog(false);
 
-    const deletePromise = fetch(
-      `/api/chat?id=${chatToDelete}&visitorId=${getVisitorId()}`,
-      {
-        method: "DELETE",
-      }
-    );
+    // Optimistic update - immediately remove from UI
+    setOptimisticHistories(chatToDelete);
 
-    toast.promise(deletePromise, {
-      loading: "Deleting chat...",
-      success: () => {
-        mutate((chatHistories) => {
-          if (chatHistories) {
-            return chatHistories.map((chatHistory) => ({
-              ...chatHistory,
-              chats: chatHistory.chats.filter(
-                (chat) => chat.id !== chatToDelete
-              ),
-            }));
-          }
-        });
-
-        if (isCurrentChat) {
-          router.replace("/");
-          router.refresh();
+    try {
+      const response = await fetch(
+        `/api/chat?id=${chatToDelete}&visitorId=${getVisitorId()}`,
+        {
+          method: "DELETE",
         }
+      );
 
-        return "Chat deleted successfully";
-      },
-      error: "Failed to delete chat",
-    });
+      if (!response.ok) {
+        throw new Error("Failed to delete");
+      }
+
+      // Navigate first if needed (this will unmount component anyway)
+      if (isCurrentChat) {
+        router.replace("/");
+        router.refresh();
+      }
+
+      toast.success("Chat deleted successfully");
+      // Revalidate last - user already sees success
+      mutate();
+    } catch {
+      // The async transition ending will discard optimistic value and restore original state
+      toast.error("Failed to delete chat");
+    }
   };
 
   if (isLoading) {
@@ -211,9 +226,9 @@ export function SidebarHistory() {
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
-            {paginatedChatHistories &&
+            {optimisticHistories &&
               (() => {
-                const chatsFromHistory = paginatedChatHistories.flatMap(
+                const chatsFromHistory = optimisticHistories.flatMap(
                   (paginatedChatHistory) => paginatedChatHistory.chats
                 );
 
