@@ -1,6 +1,7 @@
 "use client";
 
 import type { UseChatHelpers } from "@ai-sdk/react";
+import equal from "fast-deep-equal";
 import { motion } from "framer-motion";
 import { memo } from "react";
 import type { ChatMessage } from "@/lib/types";
@@ -11,22 +12,48 @@ type SuggestedActionsProps = {
   chatId: string;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   selectedVisibilityType: VisibilityType;
+  suggestions?: string[];
+  isLoading?: boolean;
+  onActionClick?: () => void;
 };
 
-function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
-  const suggestedActions = [
+function PureSuggestedActions({
+  chatId,
+  sendMessage,
+  suggestions,
+  isLoading,
+  onActionClick,
+}: SuggestedActionsProps) {
+  const defaultSuggestions = [
     "윤현수의 기술 스택이 뭐야?",
     "실시간 처리 경험이 있어?",
     "WebSocket 경험이 있어?",
     "프로젝트 경험을 알려줘",
   ];
 
+  // Use provided suggestions or fallback to defaults
+  const displaySuggestions =
+    suggestions && suggestions.length > 0 ? suggestions : defaultSuggestions;
+
+  if (isLoading) {
+    return (
+      <div
+        className="grid w-full gap-2 sm:grid-cols-2"
+        data-testid="suggested-actions-loading"
+      >
+        {[1, 2, 3].map((i) => (
+          <div className="h-12 animate-pulse rounded-full bg-muted" key={i} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
       className="grid w-full gap-2 sm:grid-cols-2"
       data-testid="suggested-actions"
     >
-      {suggestedActions.map((suggestedAction, index) => (
+      {displaySuggestions.map((suggestedAction, index) => (
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -38,6 +65,7 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
             className="h-auto w-full whitespace-normal p-3 text-left"
             onClick={(suggestion) => {
               window.history.pushState({}, "", `/chat/${chatId}`);
+              onActionClick?.();
               sendMessage({
                 role: "user",
                 parts: [{ type: "text", text: suggestion }],
@@ -62,7 +90,12 @@ export const SuggestedActions = memo(
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
       return false;
     }
-
+    if (prevProps.isLoading !== nextProps.isLoading) {
+      return false;
+    }
+    if (!equal(prevProps.suggestions, nextProps.suggestions)) {
+      return false;
+    }
     return true;
   }
 );

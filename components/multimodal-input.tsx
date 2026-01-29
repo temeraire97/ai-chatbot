@@ -7,7 +7,6 @@ import {
   type Dispatch,
   memo,
   type SetStateAction,
-  useCallback,
   useEffect,
   useRef,
 } from "react";
@@ -40,6 +39,8 @@ function PureMultimodalInput({
   sendMessage,
   className,
   selectedVisibilityType,
+  suggestions,
+  isLoadingSuggestions,
 }: {
   chatId: string;
   input: string;
@@ -53,6 +54,8 @@ function PureMultimodalInput({
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   className?: string;
   selectedVisibilityType: VisibilityType;
+  suggestions?: string[];
+  isLoadingSuggestions?: boolean;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -142,11 +145,13 @@ function PureMultimodalInput({
 
   return (
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
-      {messages.length === 0 && attachments.length === 0 && (
+      {attachments.length === 0 && messages.length === 0 && (
         <SuggestedActions
           chatId={chatId}
+          isLoading={isLoadingSuggestions}
           selectedVisibilityType={selectedVisibilityType}
           sendMessage={sendMessage}
+          suggestions={suggestions}
         />
       )}
 
@@ -212,6 +217,18 @@ export const MultimodalInput = memo(
       return false;
     }
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+      return false;
+    }
+    if (
+      (prevProps.messages.length === 0) !==
+      (nextProps.messages.length === 0)
+    ) {
+      return false;
+    }
+    if (!equal(prevProps.suggestions, nextProps.suggestions)) {
+      return false;
+    }
+    if (prevProps.isLoadingSuggestions !== nextProps.isLoadingSuggestions) {
       return false;
     }
 

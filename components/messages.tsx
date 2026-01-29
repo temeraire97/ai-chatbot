@@ -5,6 +5,8 @@ import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
 import { Greeting } from "./greeting";
 import { PreviewMessage, ThinkingMessage } from "./message";
+import { SuggestedActions } from "./suggested-actions";
+import type { VisibilityType } from "./visibility-selector";
 
 type MessagesProps = {
   chatId: string;
@@ -13,6 +15,10 @@ type MessagesProps = {
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
+  suggestions?: string[];
+  isLoadingSuggestions?: boolean;
+  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
+  selectedVisibilityType: VisibilityType;
 };
 
 function PureMessages({
@@ -22,6 +28,10 @@ function PureMessages({
   setMessages,
   regenerate,
   isReadonly,
+  suggestions,
+  isLoadingSuggestions,
+  sendMessage,
+  selectedVisibilityType,
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -38,7 +48,7 @@ function PureMessages({
   return (
     <div className="relative flex-1">
       <div
-        className="absolute inset-0 touch-pan-y overflow-y-auto"
+        className="absolute inset-0 touch-pan-y overflow-y-auto pb-32"
         ref={messagesContainerRef}
       >
         <div className="mx-auto flex min-w-0 max-w-4xl flex-col gap-4 px-2 py-4 md:gap-6 md:px-4">
@@ -75,9 +85,24 @@ function PureMessages({
         </div>
       </div>
 
+      {messages.length > 0 && status === "ready" && !isReadonly && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-2 pb-4 md:px-4">
+          <div className="pointer-events-auto mx-auto max-w-4xl rounded-2xl bg-background/5 p-3 backdrop-blur-sm">
+            <SuggestedActions
+              chatId={chatId}
+              isLoading={isLoadingSuggestions}
+              onActionClick={() => scrollToBottom("instant")}
+              selectedVisibilityType={selectedVisibilityType}
+              sendMessage={sendMessage}
+              suggestions={suggestions}
+            />
+          </div>
+        </div>
+      )}
+
       <button
         aria-label="Scroll to bottom"
-        className={`absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full border bg-background p-2 shadow-lg transition-all hover:bg-muted ${
+        className={`absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full border bg-background p-2 shadow-lg transition-all hover:bg-muted ${
           isAtBottom
             ? "pointer-events-none scale-0 opacity-0"
             : "pointer-events-auto scale-100 opacity-100"

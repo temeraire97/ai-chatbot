@@ -55,6 +55,8 @@ export function Chat({
   const { setDataStream } = useDataStream();
 
   const [input, setInput] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   const {
     messages,
@@ -112,8 +114,31 @@ export function Chat({
     onData: (dataPart) => {
       setDataStream((ds) => (ds ? [...ds, dataPart] : []));
     },
-    onFinish: () => {
+    onFinish: async ({ message }) => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
+
+      // Fetch AI-generated suggestions based on assistant response
+      if (message?.role === "assistant") {
+        const textPart = message.parts?.find(
+          (p): p is { type: "text"; text: string } => p.type === "text"
+        );
+        if (textPart?.text) {
+          setIsLoadingSuggestions(true);
+          try {
+            const response = await fetch("/api/suggestions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lastAssistantMessage: textPart.text }),
+            });
+            const data = await response.json();
+            setSuggestions(data.suggestions || []);
+          } catch {
+            setSuggestions([]);
+          } finally {
+            setIsLoadingSuggestions(false);
+          }
+        }
+      }
     },
     onError: (error) => {
       if (error instanceof ChatSDKError) {
@@ -161,11 +186,15 @@ export function Chat({
 
       <Messages
         chatId={id}
+        isLoadingSuggestions={isLoadingSuggestions}
         isReadonly={isReadonly}
         messages={messages}
         regenerate={regenerate}
+        selectedVisibilityType={visibilityType}
+        sendMessage={sendMessage}
         setMessages={setMessages}
         status={status}
+        suggestions={suggestions}
       />
 
       <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
@@ -174,6 +203,7 @@ export function Chat({
             attachments={attachments}
             chatId={id}
             input={input}
+            isLoadingSuggestions={isLoadingSuggestions}
             messages={messages}
             selectedVisibilityType={visibilityType}
             sendMessage={sendMessage}
@@ -182,6 +212,7 @@ export function Chat({
             setMessages={setMessages}
             status={status}
             stop={stop}
+            suggestions={suggestions}
           />
         )}
       </div>
