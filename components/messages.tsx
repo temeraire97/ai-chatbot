@@ -91,6 +91,7 @@ function PureMessages({
             <SuggestedActions
               chatId={chatId}
               isLoading={isLoadingSuggestions}
+              onActionClick={() => scrollToBottom("instant")}
               selectedVisibilityType={selectedVisibilityType}
               sendMessage={sendMessage}
               suggestions={suggestions}
