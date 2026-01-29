@@ -7,7 +7,6 @@ import {
   type Dispatch,
   memo,
   type SetStateAction,
-  useCallback,
   useEffect,
   useRef,
 } from "react";
@@ -40,6 +39,8 @@ function PureMultimodalInput({
   sendMessage,
   className,
   selectedVisibilityType,
+  suggestions,
+  isLoadingSuggestions,
 }: {
   chatId: string;
   input: string;
@@ -53,6 +54,8 @@ function PureMultimodalInput({
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   className?: string;
   selectedVisibilityType: VisibilityType;
+  suggestions?: string[];
+  isLoadingSuggestions?: boolean;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -142,13 +145,16 @@ function PureMultimodalInput({
 
   return (
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
-      {messages.length === 0 && attachments.length === 0 && (
-        <SuggestedActions
-          chatId={chatId}
-          selectedVisibilityType={selectedVisibilityType}
-          sendMessage={sendMessage}
-        />
-      )}
+      {attachments.length === 0 &&
+        (messages.length === 0 || status === "ready") && (
+          <SuggestedActions
+            chatId={chatId}
+            isLoading={isLoadingSuggestions}
+            selectedVisibilityType={selectedVisibilityType}
+            sendMessage={sendMessage}
+            suggestions={suggestions}
+          />
+        )}
 
       <PromptInput
         className="rounded-xl border border-border bg-background p-3 shadow-xs transition-all duration-200 focus-within:border-primary/50 hover:border-muted-foreground/50"
@@ -212,6 +218,18 @@ export const MultimodalInput = memo(
       return false;
     }
     if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+      return false;
+    }
+    if (
+      (prevProps.messages.length === 0) !==
+      (nextProps.messages.length === 0)
+    ) {
+      return false;
+    }
+    if (!equal(prevProps.suggestions, nextProps.suggestions)) {
+      return false;
+    }
+    if (prevProps.isLoadingSuggestions !== nextProps.isLoadingSuggestions) {
       return false;
     }
 
