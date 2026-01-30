@@ -8,6 +8,7 @@ import {
   memo,
   type SetStateAction,
   useEffect,
+  useLayoutEffect,
   useRef,
 } from "react";
 import { toast } from "sonner";
@@ -92,17 +93,24 @@ function PureMultimodalInput({
     ""
   );
 
-  useEffect(() => {
-    if (textareaRef.current) {
+  const hasRestoredInput = useRef(false);
+
+  // Use useLayoutEffect to restore input before browser paint to avoid flicker
+  // This should only run once on initial mount
+  useLayoutEffect(() => {
+    if (textareaRef.current && !hasRestoredInput.current) {
+      hasRestoredInput.current = true;
       const domValue = textareaRef.current.value;
       // Prefer DOM value over localStorage to handle hydration
       const finalValue = domValue || localStorageInput || "";
-      setInput(finalValue);
+      if (finalValue) {
+        setInput(finalValue);
+      }
       adjustHeight();
     }
-    // Only run once after hydration
+    // Only run once after hydration - localStorageInput is read but not reactive
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adjustHeight, localStorageInput, setInput]);
+  }, []);
 
   useEffect(() => {
     setLocalStorageInput(input);
